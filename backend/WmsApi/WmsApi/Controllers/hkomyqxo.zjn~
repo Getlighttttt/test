@@ -1,0 +1,184 @@
+﻿using Microsoft.AspNetCore.Mvc;
+using WmsApi.Data;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.EntityFrameworkCore;
+using WmsApi.Models;
+using System.Security.Claims;
+
+namespace WmsApi.Controllers
+{
+
+    [ApiController]
+    [Route("api/receiving")]
+    [Authorize]
+
+    public class ReceivingController : ControllerBase
+    {
+        private readonly Db1Context _db;
+        private readonly MovementLogger _logger;
+
+        public ReceivingController(Db1Context db, MovementLogger logger) => (_db, _logger) = (db, logger);
+
+        [HttpGet("order/{orderNumber}")]
+        public async Task<IActionResult> GetOrder(string orderNumber)
+        {
+            var order = await _db.Orders.Include(o => o.Items).ThenInclude(i => i.Product).FirstOrDefaultAsync(o => o.OrderNumber == orderNumber);
+            if(order == null) {
+                return NotFound(new { message = "Neznáma dodávka" });
+            }
+            return Ok(new { orderNumber = order.OrderNumber, supplierName = order.SupplierName, items = order.Items.Select(i => new { code = i.Product.Code, name = i.Product.Name, expectedQty = i.ExpectedQty, unit = i.Product.Unit }) });
+        }
+
+        [HttpPost("receive")]
+        public async Task<IActionResult> Receive(ReceiveRequest req)
+        {
+            var order = await _db.Orders
+                .Include(o => o.Items).ThenInclude(i => i.Product)
+                .FirstOrDefaultAsync(o => o.OrderNumber == req.OrderNumber);
+            if (order == null)
+                return NotFound(new { message = "Neznáma dodávka" });
+
+            if (req.Pallets.Count == 0)
+                return BadRequest(new { message = "Žiadne palety" });
+
+            var codes = req.Pallets.Select(p => p.Code);
+            if (codes.Distinct().Count() < req.Pallets.Count)
+                return BadRequest(new { message = "Duplicitné kódy paliet v požiadavke" });
+
+            foreach (var p in req.Pallets)
+            {
+                if (p.Quantity <= 0)
+                    return BadRequest(new { message = $"Neplatné množstvo pre paletu {p.Code}" });
+
+                if (!await _db.Products.AnyAsync(x => x.Code == p.ProductCode))
+                    return BadRequest(new { message = $"Neznámy produkt: {p.ProductCode}" });
+
+                if (await _db.Pallets.AnyAsync(x => x.Code == p.Code))
+                    return BadRequest(new { message = $"Paleta {p.Code} už existuje" });
+            }
+
+            var deviations = new List<string>();
+
+            foreach (var item in order.Items)
+            {
+                var received = req.Pallets
+                    .Where(p => p.ProductCode == item.Product!.Code)
+                    .Sum(p => p.Quantity);
+
+                if (received != item.ExpectedQty)
+                    deviations.Add($"{item.Product!.Code}: očakávané {item.ExpectedQty}, prijaté {received}");
+            }
+
+            foreach (var pallet in req.Pallets)
+            {
+                if (!order.Items.Any(i => i.Product!.Code == pallet.ProductCode))
+                    deviations.Add($"{pallet.ProductCode} nie je v objednávke");
+            }
+
+            var status = deviations.Count > 0 ? "WITH_DEVIATION" : "OK";
+            string? note = deviations.Count > 0 ? string.Join("\n", deviations) : null;
+
+            int userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
+            string? userName = User.Identity?.Name;
+
+            var receipt = new Receipt
+            {
+                OrderId = order.Id,
+                Status = status,
+                Note = note,
+                ReceivedByUserId = userId
+            };
+            _db.Receipts.Add(receipt);
+
+            foreach (var p in req.Pallets)
+            {
+                var product = await _db.Products.FirstAsync(x => x.Code == p.ProductCode);
+
+                var pallet = new Pallet
+                {
+                    Code = p.Code,
+                    ProductId = product.Id,
+                    Quantity = p.Quantity,
+                    OrderId = order.Id,
+                    Status = PalletStatus.Received,
+                    PackagingDamaged = p.PackagingDamaged,
+                    Receipt = receipt
+                };
+                _db.Pallets.Add(pallet);
+
+                if (p.PackagingDamaged)
+                {
+                    _db.DamageRecords.Add(new DamageRecord
+                    {
+                        Pallet = pallet,
+                        Description = p.DamageDescription ?? "",
+                        UserId = userId
+                    });
+                }
+            }
+
+            await _db.SaveChangesAsync();
+
+            foreach (var p in req.Pallets)
+            {
+                await _logger.LogAsync("RECEIVE", p.Code, p.ProductCode, p.Quantity,
+                    null, Zone.Receiving, userName, note);
+            }
+
+            return Ok(new
+            {
+                status,
+                deviations,
+                receiptId = receipt.Id,
+                pallets = req.Pallets.Select(p => p.Code)
+            });
+        }
+
+        [HttpGet("free-locations")]
+        public async Task<IActionResult> GetFreeLocations()
+        {
+            var locations = await _db.Locations
+                .Where(l => l.Zone == Models.Zone.Storage && l.IsFree == true)
+                .ToListAsync();
+
+            return Ok(locations.Select(l => new { code = l.Code }));
+        }
+
+        [HttpPost("store")]
+        public async Task<IActionResult> Store(StoreRequest req)
+        {
+            var PresentPallet = await _db.Pallets.Include(p => p.Receipt).FirstOrDefaultAsync(p => p.Code == req.PalletCode);
+            if(PresentPallet == null)
+            {
+                return NotFound(new { message = "Neznáma paleta" });
+            }
+
+            if(PresentPallet.Status != PalletStatus.Received)
+            {
+                return BadRequest(new { message = "Paleta nie je prijatá" });
+            }
+
+            var location = await _db.Locations.FirstOrDefaultAsync(l => l.Code == req.PalletCode);
+            if(location == null)
+            {
+                return NotFound(new {message = "Neznáma paleta"});
+            }
+
+            if(PresentPallet != null && PresentPallet.Receipt.Status == "WITH_DEVIATION")
+            {
+                return Conflict(new { message = "Paleta je s nesprávnymi informaciami" });
+            }
+
+            if(location.Zone != Models.Zone.Storage)
+            {
+                return BadRequest(new { message = "Paleta je jiz v skladu" });
+            }
+
+            PresentPallet.LocationId = location.Id;
+            PresentPallet.Status = PalletStatus.Stored;
+            location.IsFree = false;
+            await _db.SaveChangesAsync();
+        }
+
+    }
+}
