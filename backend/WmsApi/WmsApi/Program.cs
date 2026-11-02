@@ -33,21 +33,16 @@ using (var scope = app.Services.CreateScope())
 {
     var db1 = scope.ServiceProvider.GetRequiredService<Db1Context>();
     db1.Database.EnsureCreated();
-    scope.ServiceProvider.GetRequiredService<Db2Context>().Database.EnsureCreated();
+    // DB2 uses migrations. The first one safely adopts an existing MovementLogs table.
+    scope.ServiceProvider.GetRequiredService<Db2Context>().Database.Migrate();
     DbSeeder.Seed(db1);
 }
 
 app.UseSwagger();
 app.UseSwaggerUI();
 
-// Serve the compiled React app from wwwroot (copied there in the Dockerfile).
-app.UseDefaultFiles();
-app.UseStaticFiles();
-
 app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
-// Allow React Router URLs such as /dashboard and /tsd/line to work on refresh.
-app.MapFallbackToFile("index.html");
 app.Run();
