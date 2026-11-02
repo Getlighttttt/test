@@ -1,0 +1,262 @@
+[
+  {
+    "ContainingType": "WmsApi.Controllers.AuthController",
+    "Method": "Login",
+    "RelativePath": "api/auth/login",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "req",
+        "Type": "WmsApi.Controllers.LoginRequest",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "WmsApi.Controllers.AuthController",
+    "Method": "Logout",
+    "RelativePath": "api/auth/logout",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "WmsApi.Controllers.AuthController",
+    "Method": "Me",
+    "RelativePath": "api/auth/me",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "WmsApi.Controllers.DispecerController",
+    "Method": "GetDeviations",
+    "RelativePath": "api/dispecer/deviations",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "WmsApi.Controllers.DispecerController",
+    "Method": "Decision",
+    "RelativePath": "api/dispecer/deviations/{receiptId}/decision",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "receiptId",
+        "Type": "System.Int32",
+        "IsRequired": true
+      },
+      {
+        "Name": "req",
+        "Type": "WmsApi.Models.DecisionRequest",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "WmsApi.Controllers.DispecerController",
+    "Method": "GetProducts",
+    "RelativePath": "api/dispecer/products",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "WmsApi.Controllers.DispecerController",
+    "Method": "ChangePriority",
+    "RelativePath": "api/dispecer/replenishments/{id}/priority",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "id",
+        "Type": "System.Int32",
+        "IsRequired": true
+      },
+      {
+        "Name": "req",
+        "Type": "WmsApi.Models.PriorityRequest",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "WmsApi.Controllers.DispecerController",
+    "Method": "GetStock",
+    "RelativePath": "api/dispecer/stock",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "WmsApi.Controllers.QuarantineController",
+    "Method": "SetQuarantine",
+    "RelativePath": "api/quarantine",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "req",
+        "Type": "WmsApi.Models.QuarantineRequest",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "WmsApi.Controllers.QuarantineController",
+    "Method": "SetDecision",
+    "RelativePath": "api/quarantine/{id}/decision",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "id",
+        "Type": "System.Int32",
+        "IsRequired": true
+      },
+      {
+        "Name": "req",
+        "Type": "WmsApi.Models.QuarantineDecisionRequest",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "WmsApi.Controllers.QuarantineController",
+    "Method": "GetOpenCases",
+    "RelativePath": "api/quarantine/open",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "WmsApi.Controllers.ReceivingController",
+    "Method": "GetFreeLocations",
+    "RelativePath": "api/receiving/free-locations",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "WmsApi.Controllers.ReceivingController",
+    "Method": "GetOrder",
+    "RelativePath": "api/receiving/order/{orderNumber}",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "orderNumber",
+        "Type": "System.String",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "WmsApi.Controllers.ReceivingController",
+    "Method": "Receive",
+    "RelativePath": "api/receiving/receive",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "req",
+        "Type": "WmsApi.Models.ReceiveRequest",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "WmsApi.Controllers.ReceivingController",
+    "Method": "Store",
+    "RelativePath": "api/receiving/store",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "req",
+        "Type": "WmsApi.Models.StoreRequest",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "WmsApi.Controllers.ReplenishmentController",
+    "Method": "Create",
+    "RelativePath": "api/replenishment",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "req",
+        "Type": "WmsApi.Models.CreateReplenishmentRequest",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "WmsApi.Controllers.ReplenishmentController",
+    "Method": "Send",
+    "RelativePath": "api/replenishment/{id}/send",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "id",
+        "Type": "System.Int32",
+        "IsRequired": true
+      },
+      {
+        "Name": "req",
+        "Type": "WmsApi.Models.SendToLineRequest",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "WmsApi.Controllers.ReplenishmentController",
+    "Method": "GetOpenReplenishments",
+    "RelativePath": "api/replenishment/open",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [],
+    "ReturnTypes": []
+  }
+]
