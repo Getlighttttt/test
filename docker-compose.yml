@@ -42,6 +42,7 @@ services:
       - "8080:8080"
     environment:
       ASPNETCORE_URLS: "http://+:8080"
+      ML_SERVICE_URL: "http://ml-service:8000"  # Reserved for future ASP.NET integration. Not used yet.
       ConnectionStrings__Db1: "Host=db1;Port=5432;Database=wms_operational;Username=wms;Password=wms123"
       ConnectionStrings__Db2: "Host=db2;Port=5432;Database=wms_analytics;Username=wms;Password=wms123"
     depends_on:
@@ -49,6 +50,20 @@ services:
         condition: service_healthy
       db2:
         condition: service_healthy
+
+  ml-service:
+    build:
+      context: ./ml-service
+      dockerfile: Dockerfile
+    container_name: wms-ml
+    ports:
+      - "127.0.0.1:8001:8000"  # Local testing only; internal container port is 8000.
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/health', timeout=3)"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
 
 volumes:
   db1data:
