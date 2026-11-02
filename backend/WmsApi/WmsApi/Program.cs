@@ -40,8 +40,14 @@ using (var scope = app.Services.CreateScope())
 app.UseSwagger();
 app.UseSwaggerUI();
 
+// Serve the compiled React app from wwwroot (copied there in the Dockerfile).
+app.UseDefaultFiles();
+app.UseStaticFiles();
+
 app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
+// Allow React Router URLs such as /dashboard and /tsd/line to work on refresh.
+app.MapFallbackToFile("index.html");
 app.Run();
