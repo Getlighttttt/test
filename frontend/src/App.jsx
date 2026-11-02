@@ -4,6 +4,7 @@ import Login from './pages/Login.jsx';
 import Layout from './components/Layout.jsx';
 import ProtectedRoute from './components/ProtectedRoute.jsx';
 import Tsd from './pages/Tsd.jsx';
+import ReceivingArea from './pages/ReceivingArea.jsx';
 import Dashboard from './pages/Dashboard.jsx';
 import Line from './pages/Line.jsx';
 import Quarantine from './pages/Quarantine.jsx';
@@ -23,6 +24,12 @@ function App() {
           <Layout><Tsd /></Layout>
         </ProtectedRoute>
       }/>
+
+      <Route path="/tsd/receiving" element={
+        <ProtectedRoute role="Skladnik">
+          <Layout><ReceivingArea /></Layout>
+        </ProtectedRoute>
+      } />
 
       <Route path="/tsd/line" element={
         <ProtectedRoute role="Skladnik">

@@ -78,6 +78,12 @@ namespace WmsApi.Controllers
             var status = deviations.Count > 0 ? "WITH_DEVIATION" : "OK";
             string? note = deviations.Count > 0 ? string.Join("\n", deviations) : null;
 
+            // Receiving is a shared physical area; many pallets may point to LOC-REC1.
+            var receivingLocation = await _db.Locations.FirstOrDefaultAsync(l =>
+                l.Code == "LOC-REC1" && l.Zone == Zone.Receiving);
+            if (receivingLocation == null)
+                return Problem("Receiving location LOC-REC1 is missing", statusCode: 500);
+
             int userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
             string? userName = User.Identity?.Name;
 
@@ -101,6 +107,7 @@ namespace WmsApi.Controllers
                     Quantity = p.Quantity,
                     OrderId = order.Id,
                     Status = PalletStatus.Received,
+                    LocationId = receivingLocation.Id,
                     PackagingDamaged = p.PackagingDamaged,
                     Receipt = receipt
                 };
