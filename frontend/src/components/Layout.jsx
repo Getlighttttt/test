@@ -34,6 +34,7 @@ function Layout({ children }) {
         { to: '/dashboard/deviations', label: 'Deviations' },
         { to: '/dashboard/quarantine', label: 'Quarantine' },
         { to: '/dashboard/requests', label: 'Requests' },
+        { to: '/dashboard/lines', label: 'Production Lines' },
     ];
 
     let menu = [];

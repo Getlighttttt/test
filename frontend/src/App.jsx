@@ -11,6 +11,7 @@ import Quarantine from './pages/Quarantine.jsx';
 import Deviations from './pages/Deviations.jsx';
 import QuarantineCases from './pages/QuarantineCases.jsx';
 import Requests from './pages/Requests.jsx';
+import LineInventory from './pages/LineInventory.jsx';
 
 function App() {
   const [count, setCount] = useState(0)
@@ -58,6 +59,12 @@ function App() {
       <Route path="/dashboard/quarantine" element={
         <ProtectedRoute role="Dispecer">
           <Layout><QuarantineCases /></Layout>
+        </ProtectedRoute>
+      } />
+
+      <Route path="/dashboard/lines" element={
+        <ProtectedRoute role="Dispecer">
+          <Layout><LineInventory /></Layout>
         </ProtectedRoute>
       } />
 

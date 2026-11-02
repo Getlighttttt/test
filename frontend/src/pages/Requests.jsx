@@ -3,14 +3,15 @@ import { api } from '../api';
 import './Tsd.css';
 import './Dashboard.css';
 
+const LINES = ['L1', 'L2'];
+
 function Requests() {
     const [products, setProducts] = useState([]);
     const [requests, setRequests] = useState([]);
     const [loading, setLoading] = useState(true);
 
-    // форма створення
     const [productCode, setProductCode] = useState('');
-    const [lineName, setLineName] = useState('');
+    const [lineName, setLineName] = useState('L1');
     const [quantity, setQuantity] = useState('');
     const [priority, setPriority] = useState(3);
 
@@ -19,9 +20,7 @@ function Requests() {
 
     async function loadRequests() {
         const res = await api('/api/replenishment/open');
-        if (res.ok) {
-            setRequests(res.data);
-        }
+        if (res.ok) setRequests(res.data);
     }
 
     useEffect(() => {
@@ -41,30 +40,32 @@ function Requests() {
         setFormError('');
         setMessage({ ok: true, text: '' });
 
-        const qty = parseInt(quantity, 10);
-        if (!lineName.trim()) {
-            setFormError('Enter the line name');
+        const qty = Number(quantity);
+        if (!productCode) {
+            setFormError('Select a material');
             return;
         }
-        if (!qty || qty <= 0) {
-            setFormError('Enter a valid quantity');
+        if (!LINES.includes(lineName)) {
+            setFormError('Select L1 or L2');
+            return;
+        }
+        if (!/^\d+$/.test(quantity) || !Number.isSafeInteger(qty) || qty <= 0) {
+            setFormError('Enter a valid whole-number quantity');
             return;
         }
 
         const res = await api('/api/replenishment', 'POST', {
-            productCode: productCode,
-            lineName: lineName.trim(),
+            productCode,
+            lineName,
             quantity: qty,
-            priority: priority,
+            priority,
         });
-
         if (!res.ok) {
             setFormError(res.data?.message ?? 'Error');
             return;
         }
 
         setMessage({ ok: true, text: 'Request #' + res.data.id + ' has been created' });
-        setLineName('');
         setQuantity('');
         setPriority(3);
         await loadRequests();
@@ -76,16 +77,14 @@ function Requests() {
             priority: newPriority,
         });
         if (!res.ok) {
-            setMessage({ ok: false, text: res.data?.message ?? 'Chyba' });
+            setMessage({ ok: false, text: res.data?.message ?? 'Error' });
             return;
         }
         setMessage({ ok: true, text: 'The priority has been changed' });
-        await loadRequests(); 
+        await loadRequests();
     }
 
-    if (loading) {
-        return <p>Loading...</p>;
-    }
+    if (loading) return <p>Loading...</p>;
 
     return (
         <div className="tsd dash">
@@ -94,44 +93,39 @@ function Requests() {
             <section className="card">
                 <h3>New Request</h3>
                 <div className="row">
-                    <select value={productCode} onChange={(e) => setProductCode(e.target.value)}>
+                    <select aria-label="Material" value={productCode} onChange={(e) => setProductCode(e.target.value)}>
                         {products.map((p) => (
-                            <option key={p.code} value={p.code}>
-                                {p.code} - {p.name}
-                            </option>
+                            <option key={p.code} value={p.code}>{p.code} - {p.name}</option>
+                        ))}
+                    </select>
+                    <select aria-label="Production line" value={lineName} onChange={(e) => setLineName(e.target.value)}>
+                        {LINES.map((line) => (
+                            <option key={line} value={line}>{line}</option>
                         ))}
                     </select>
                     <input
-                        placeholder="Line (e.g., L1)"
-                        value={lineName}
-                        onChange={(e) => setLineName(e.target.value)}
-                    />
-                    <input
                         type="number"
+                        min="1"
+                        step="1"
                         placeholder="Quantity"
                         value={quantity}
                         onChange={(e) => setQuantity(e.target.value)}
                     />
                     <select
+                        aria-label="Priority"
                         value={priority}
                         onChange={(e) => setPriority(parseInt(e.target.value, 10))}
                     >
                         {[1, 2, 3, 4, 5].map((n) => (
-                            <option key={n} value={n}>
-                                Priority {n}
-                            </option>
+                            <option key={n} value={n}>Priority {n}</option>
                         ))}
                     </select>
-                    <button className="primary" onClick={handleCreate}>
-                        Create
-                    </button>
+                    <button className="primary" onClick={handleCreate}>Create</button>
                 </div>
                 {formError && <p className="error">{formError}</p>}
             </section>
 
-            {message.text && (
-                <p className={message.ok ? 'ok' : 'error'}>{message.text}</p>
-            )}
+            {message.text && <p className={message.ok ? 'ok' : 'error'}>{message.text}</p>}
 
             <section className="card">
                 <h3>Open Requests</h3>
@@ -141,37 +135,25 @@ function Requests() {
                     <table>
                         <thead>
                             <tr>
-                                <th>#</th>
-                                <th>Material</th>
-                                <th>Quantity</th>
-                                <th>Line</th>
-                                <th>Created</th>
-                                <th>Priority</th>
+                                <th>#</th><th>Material</th><th>Quantity</th>
+                                <th>Line</th><th>Created</th><th>Priority</th>
                             </tr>
                         </thead>
                         <tbody>
                             {requests.map((r) => (
                                 <tr key={r.id}>
                                     <td>{r.id}</td>
-                                    <td>
-                                        {r.productCode}
-                                        <br />
-                                        <small>{r.productName}</small>
-                                    </td>
+                                    <td>{r.productCode}<br /><small>{r.productName}</small></td>
                                     <td>{r.quantity}</td>
                                     <td>{r.lineName}</td>
                                     <td>{new Date(r.createdAt).toLocaleString('sk-SK')}</td>
                                     <td>
                                         <select
                                             value={r.priority}
-                                            onChange={(e) =>
-                                                handlePriority(r.id, parseInt(e.target.value, 10))
-                                            }
+                                            onChange={(e) => handlePriority(r.id, parseInt(e.target.value, 10))}
                                         >
                                             {[1, 2, 3, 4, 5].map((n) => (
-                                                <option key={n} value={n}>
-                                                    {n}
-                                                </option>
+                                                <option key={n} value={n}>Priority {n}</option>
                                             ))}
                                         </select>
                                     </td>
