@@ -33,8 +33,7 @@ using (var scope = app.Services.CreateScope())
 {
     var db1 = scope.ServiceProvider.GetRequiredService<Db1Context>();
     db1.Database.EnsureCreated();
-    // DB2 uses migrations. The first one safely adopts an existing MovementLogs table.
-    scope.ServiceProvider.GetRequiredService<Db2Context>().Database.Migrate();
+    scope.ServiceProvider.GetRequiredService<Db2Context>().Database.EnsureCreated();
     DbSeeder.Seed(db1);
 }
 
