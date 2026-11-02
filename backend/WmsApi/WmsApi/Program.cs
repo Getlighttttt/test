@@ -40,8 +40,18 @@ using (var scope = app.Services.CreateScope())
 app.UseSwagger();
 app.UseSwaggerUI();
 
+// Serve React frontend
+app.UseDefaultFiles();
+app.UseStaticFiles();
+
+// Authentication
 app.UseAuthentication();
 app.UseAuthorization();
 
+// Backend API
 app.MapControllers();
+
+// React Router support
+app.MapFallbackToFile("index.html");
+
 app.Run();
