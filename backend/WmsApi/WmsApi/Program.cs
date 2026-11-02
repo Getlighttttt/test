@@ -35,6 +35,7 @@ using (var scope = app.Services.CreateScope())
     db1.Database.EnsureCreated();
     scope.ServiceProvider.GetRequiredService<Db2Context>().Database.EnsureCreated();
     DbSeeder.Seed(db1);
+    OrderBootstrapper.Seed(db1);
 }
 
 app.UseSwagger();

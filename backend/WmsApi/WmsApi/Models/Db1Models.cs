@@ -1,4 +1,4 @@
-﻿namespace WmsApi.Models;
+namespace WmsApi.Models;
 
 public static class PalletStatus
 {
@@ -6,7 +6,9 @@ public static class PalletStatus
     public const string Stored = "STORED";         
     public const string OnLine = "ON_LINE";        
     public const string Quarantine = "QUARANTINE";  
-    public const string WrittenOff = "WRITTEN_OFF"; 
+    public const string WrittenOff = "WRITTEN_OFF";
+    public const string Rework = "REWORK";
+    public const string Claim = "CLAIM";
 }
 
 public static class Zone
@@ -15,6 +17,8 @@ public static class Zone
     public const string Storage = "STORAGE";
     public const string LineBuffer = "LINE_BUFFER";
     public const string Quarantine = "QUARANTINE";
+    public const string Rework = "REWORK";
+    public const string Claim = "CLAIM";
 }
 
 public class Role

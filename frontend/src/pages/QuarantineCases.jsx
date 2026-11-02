@@ -26,11 +26,7 @@ function CaseCard({ item, onDone }) {
             return;
         }
 
-        onDone(
-            repairable
-                ? 'Pallet ' + item.palletCode + ' has been sent for repair'
-                : 'Claim for pallet ' + item.palletCode + ' has been issued'
-        );
+        onDone('Pallet ' + item.palletCode + ' moved to ' + res.data.locationCode);
     }
 
     return (
@@ -93,14 +89,19 @@ function CaseCard({ item, onDone }) {
 
 function QuarantineCases() {
     const [cases, setCases] = useState([]);
+    const [holdingPallets, setHoldingPallets] = useState([]);
+    const [error, setError] = useState('');
     const [loading, setLoading] = useState(true);
     const [message, setMessage] = useState('');
 
     async function loadCases() {
-        const res = await api('/api/quarantine/open');
-        if (res.ok) {
-            setCases(res.data);
-        }
+        const [openRes, areasRes] = await Promise.all([
+            api('/api/quarantine/open'),
+            api('/api/quarantine/areas'),
+        ]);
+        if (openRes.ok) setCases(openRes.data);
+        if (areasRes.ok) setHoldingPallets(areasRes.data);
+        setError(openRes.ok && areasRes.ok ? '' : 'Could not load quarantine information');
         setLoading(false);
     }
 
@@ -122,6 +123,7 @@ function QuarantineCases() {
             <h1>Quarantine</h1>
 
             {message && <p className="ok">{message}</p>}
+            {error && <p className="error">{error}</p>}
 
             {cases.length === 0 ? (
                 <section className="card">
@@ -130,6 +132,36 @@ function QuarantineCases() {
             ) : (
                 cases.map((c) => <CaseCard key={c.id} item={c} onDone={handleDone} />)
             )}
+
+            <section className="card">
+                <h3>Rework and Claim Holding Areas</h3>
+                {holdingPallets.length === 0 ? (
+                    <p>No pallets currently held in rework or claim areas.</p>
+                ) : (
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Pallet</th>
+                                <th>Material</th>
+                                <th>Quantity</th>
+                                <th>Status</th>
+                                <th>Location</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {holdingPallets.map((p) => (
+                                <tr key={p.palletCode}>
+                                    <td>{p.palletCode}</td>
+                                    <td>{p.productCode}</td>
+                                    <td>{p.quantity}</td>
+                                    <td>{p.status}</td>
+                                    <td>{p.locationCode}</td>
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
+                )}
+            </section>
         </div>
     );
 }
