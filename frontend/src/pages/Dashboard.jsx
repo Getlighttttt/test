@@ -83,6 +83,9 @@ function Dashboard() {
                                 <th>Lines</th>
                                 <th>Receiving</th>
                                 <th>Quarantine</th>
+                                <th>Rework</th>
+                                <th>Claim</th>
+                                <th>Total</th>
                                 <th>Unit</th>
                             </tr>
                         </thead>
@@ -97,6 +100,9 @@ function Dashboard() {
                                     <td className={s.quarantine > 0 ? 'error' : ''}>
                                         {s.quarantine}
                                     </td>
+                                    <td>{s.rework}</td>
+                                    <td>{s.claim}</td>
+                                    <td><strong>{s.total}</strong></td>
                                     <td>{s.unit}</td>
                                 </tr>
                             ))}

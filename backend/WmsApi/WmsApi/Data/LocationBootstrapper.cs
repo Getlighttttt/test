@@ -2,10 +2,6 @@ using WmsApi.Models;
 
 namespace WmsApi.Data;
 
-/// <summary>
-/// Adds missing location records without changing or deleting existing pallets or locations.
-/// Run after DbSeeder.Seed so this works with both fresh and existing database volumes.
-/// </summary>
 public static class LocationBootstrapper
 {
     public static void EnsureLocations(Db1Context db)

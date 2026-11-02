@@ -2,10 +2,6 @@ using WmsApi.Models;
 
 namespace WmsApi.Data;
 
-/// <summary>
-/// Ensures the five demonstration supplier orders exist without changing existing orders.
-/// Run after DbSeeder.Seed(db1), so initial material records are already present.
-/// </summary>
 public static class OrderBootstrapper
 {
     public static void Seed(Db1Context db)

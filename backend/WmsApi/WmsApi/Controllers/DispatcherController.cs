@@ -31,7 +31,7 @@ namespace WmsApi.Controllers
         public async Task<IActionResult> Decision(int receiptId, DecisionRequest req)
         {
             var reception = await _db.Receipts.FirstOrDefaultAsync(r => r.Id == receiptId);
-            if(reception == null)
+            if (reception == null)
             {
                 return NotFound(new {message = "Unknown income" });
             }
@@ -71,7 +71,12 @@ namespace WmsApi.Controllers
                     inStorage = g.Where(p => p.Status == PalletStatus.Stored).Sum(p => p.Quantity),
                     onLine = g.Where(p => p.Status == PalletStatus.OnLine).Sum(p => p.Quantity),
                     receiving = g.Where(p => p.Status == PalletStatus.Received).Sum(p => p.Quantity),
-                    quarantine = g.Where(p => p.Status == PalletStatus.Quarantine).Sum(p => p.Quantity)
+                    quarantine = g.Where(p => p.Status == PalletStatus.Quarantine).Sum(p => p.Quantity),
+                    rework = g.Where(p => p.Status == PalletStatus.Rework).Sum(p => p.Quantity),
+                    claim = g.Where(p => p.Status == PalletStatus.Claim).Sum(p => p.Quantity),
+                    // Total physical stock, including blocked stock and line-side pallets.
+                    // WRITTEN_OFF pallets were excluded above.
+                    total = g.Sum(p => p.Quantity)
                 })
                 .ToList();
 

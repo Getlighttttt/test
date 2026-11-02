@@ -6,11 +6,6 @@ using WmsApi.Models;
 
 namespace WmsApi.Controllers;
 
-/// <summary>
-/// Read-only view of all pallets awaiting placement in warehouse storage.
-/// Includes older RECEIVED pallets whose LocationId was left NULL before
-/// LOC-REC1 was assigned on receipt.
-/// </summary>
 [ApiController]
 [Route("api/receiving/area")]
 [Authorize(Roles = "Skladnik")]
