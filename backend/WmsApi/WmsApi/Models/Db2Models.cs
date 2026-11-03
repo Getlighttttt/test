@@ -27,7 +27,7 @@ public class LineConsumptionLog
     public decimal QuantityConsumed { get; set; }
     public string Unit { get; set; } = "";  // e.g., ks, m
     public string? Source { get; set; }      // e.g., production system, manual entry
-    public DateTime RecordedAt { get; set; } = DateTime.UtcNow;
+    public DateOnly RecordedAt { get; set; } // Calendar date selected by Skladnik (PostgreSQL date)
 }
 
 // ML predictions are historical observations, not the current alert status in DB1.

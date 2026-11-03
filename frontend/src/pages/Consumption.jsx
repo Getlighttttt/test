@@ -8,18 +8,33 @@ const ARRIVAL_TIMES = Array.from({ length: 48 }, (_, index) => {
     return `${hours}:${minutes}`;
 });
 
-function recentArrival(time) {
-    const [hours, minutes] = time.split(':').map(Number);
-    const now = new Date();
-    const arrival = new Date(now.getFullYear(), now.getMonth(), now.getDate(), hours, minutes, 0, 0);
-    // A future clock time means the previous occurrence was yesterday.
-    if (arrival > now) arrival.setDate(arrival.getDate() - 1);
-    return arrival.toISOString();
+function localDateString(date = new Date()) {
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+}
+
+// Preserve the selected calendar date and the browser's actual local UTC offset.
+// This allows the backend to store PeriodStart/PeriodEnd accurately in UTC.
+function arrivalWithLocalOffset(recordedAt, arrivalTime) {
+    const [year, month, day] = recordedAt.split('-').map(Number);
+    const [hours, minutes] = arrivalTime.split(':').map(Number);
+    const local = new Date(year, month - 1, day, hours, minutes, 0, 0);
+    const offsetMinutes = -local.getTimezoneOffset();
+    const sign = offsetMinutes >= 0 ? '+' : '-';
+    const offsetHours = String(Math.floor(Math.abs(offsetMinutes) / 60)).padStart(2, '0');
+    const offsetRemainder = String(Math.abs(offsetMinutes) % 60).padStart(2, '0');
+    return {
+        value: `${recordedAt}T${arrivalTime}:00${sign}${offsetHours}:${offsetRemainder}`,
+        timestamp: local.getTime()
+    };
 }
 
 function Consumption() {
     const [pallets, setPallets] = useState([]);
     const [palletCode, setPalletCode] = useState('');
+    const [recordedAt, setRecordedAt] = useState(() => localDateString());
     const [arrivalTime, setArrivalTime] = useState('');
     const [durationMinutes, setDurationMinutes] = useState('');
     const [loading, setLoading] = useState(true);
@@ -55,13 +70,13 @@ function Consumption() {
         setMessage('');
 
         const duration = Number(durationMinutes);
-        if (!selected || !arrivalTime || !Number.isSafeInteger(duration) || duration < 1 || duration > 10080) {
-            setError('Select a pallet and arrival time, then enter a valid duration in minutes.');
+        if (!selected || !recordedAt || !arrivalTime || !Number.isSafeInteger(duration) || duration < 1 || duration > 10080) {
+            setError('Select a pallet, consumption date and arrival time, then enter a valid duration in minutes.');
             return;
         }
 
-        const arrivedAt = recentArrival(arrivalTime);
-        if (new Date(arrivedAt).getTime() + duration * 60000 > Date.now() + 60000) {
+        const arrivedAt = arrivalWithLocalOffset(recordedAt, arrivalTime);
+        if (!Number.isFinite(arrivedAt.timestamp) || arrivedAt.timestamp + duration * 60000 > Date.now() + 60000) {
             setError('Arrival time plus consumption duration cannot be in the future.');
             return;
         }
@@ -70,7 +85,8 @@ function Consumption() {
         try {
             const result = await api('/api/consumption', 'POST', {
                 palletCode,
-                arrivedAt,
+                recordedAt,
+                arrivedAt: arrivedAt.value,
                 durationMinutes: duration
             });
             if (!result.ok) {
@@ -117,6 +133,14 @@ function Consumption() {
                     )}
 
                     <div className="field">
+                        <label htmlFor="consume-date">Consumption date (RecordedAt)</label>
+                        <input id="consume-date" type="date" value={recordedAt}
+                            onChange={e => setRecordedAt(e.target.value)}
+                            max={localDateString()} required disabled={saving} />
+                        <small>Select the calendar day of consumption (day, month, year).</small>
+                    </div>
+
+                    <div className="field">
                         <label htmlFor="consume-arrival">Time pallet arrived on the line</label>
                         <select id="consume-arrival" value={arrivalTime}
                             onChange={e => setArrivalTime(e.target.value)}
@@ -124,7 +148,7 @@ function Consumption() {
                             <option value="">Select arrival time</option>
                             {ARRIVAL_TIMES.map(time => <option key={time} value={time}>{time}</option>)}
                         </select>
-                        <small>30-minute steps. Assumes today, or yesterday if the selected time is still ahead.</small>
+                        <small>30-minute steps. The date is the one selected above.</small>
                     </div>
 
                     <div className="field">

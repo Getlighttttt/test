@@ -6,7 +6,7 @@ using WmsApi.Models;
 
 namespace WmsApi.Controllers;
 
-public record ConsumePalletRequest(string? PalletCode, DateTimeOffset ArrivedAt, int DurationMinutes);
+public record ConsumePalletRequest(string? PalletCode, DateTimeOffset ArrivedAt, int DurationMinutes, DateOnly RecordedAt);
 
 [ApiController]
 [Route("api/consumption")]
@@ -53,16 +53,20 @@ public class ConsumptionController : ControllerBase
         if (req.ArrivedAt == default)
             return BadRequest(new { message = "Select an arrival time." });
 
+        if (req.RecordedAt == default)
+            return BadRequest(new { message = "Select the consumption date." });
+
+        // The selected date and arrival clock time refer to the same calendar day.
+        // ArrivedAt keeps the client's local UTC offset; convert to UTC for DB2.
+        if (DateOnly.FromDateTime(req.ArrivedAt.DateTime) != req.RecordedAt)
+            return BadRequest(new { message = "The selected date must match the arrival date." });
+
         var periodStart = req.ArrivedAt.UtcDateTime;
         var periodEnd = periodStart.AddMinutes(req.DurationMinutes);
         var now = DateTime.UtcNow;
 
         if (periodStart > now || periodEnd > now.AddMinutes(1))
             return BadRequest(new { message = "The consumption interval cannot end in the future." });
-
-        // Limit the date inference made by the time-only form to recent records.
-        if (periodStart < now.AddDays(-7))
-            return BadRequest(new { message = "Arrival time must be within the last 7 days." });
 
         var pallet = await _db1.Pallets.AsNoTracking()
             .Include(p => p.Product)
@@ -97,7 +101,7 @@ public class ConsumptionController : ControllerBase
             QuantityConsumed = pallet.Quantity,
             Unit = product.Unit,
             Source = "manual",
-            RecordedAt = now
+            RecordedAt = req.RecordedAt
         });
 
         _db2.MovementLogs.Add(new MovementLog
@@ -123,6 +127,7 @@ public class ConsumptionController : ControllerBase
             message = $"Pallet {pallet.Code} consumed on {lineName}.",
             palletCode = pallet.Code,
             lineName,
+            recordedAt = req.RecordedAt,
             periodStart,
             periodEnd
         });
