@@ -1,13 +1,6 @@
 import { useEffect, useState } from 'react';
 import { api } from '../api';
 
-// 48 options: 00:00, 00:30, 01:00, ... 23:30.
-const ARRIVAL_TIMES = Array.from({ length: 48 }, (_, index) => {
-    const hours = String(Math.floor(index / 2)).padStart(2, '0');
-    const minutes = index % 2 === 0 ? '00' : '30';
-    return `${hours}:${minutes}`;
-});
-
 function localDateString(date = new Date()) {
     const year = date.getFullYear();
     const month = String(date.getMonth() + 1).padStart(2, '0');
@@ -142,13 +135,10 @@ function Consumption() {
 
                     <div className="field">
                         <label htmlFor="consume-arrival">Time pallet arrived on the line</label>
-                        <select id="consume-arrival" value={arrivalTime}
+                        <input id="consume-arrival" type="time" step="60" value={arrivalTime}
                             onChange={e => setArrivalTime(e.target.value)}
-                            required disabled={saving}>
-                            <option value="">Select arrival time</option>
-                            {ARRIVAL_TIMES.map(time => <option key={time} value={time}>{time}</option>)}
-                        </select>
-                        <small>30-minute steps. The date is the one selected above.</small>
+                            required disabled={saving} />
+                        <small>Enter the exact arrival time (HH:mm), e.g. 12:47. The date is the one selected above.</small>
                     </div>
 
                     <div className="field">

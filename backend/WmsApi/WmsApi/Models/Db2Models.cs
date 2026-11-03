@@ -24,7 +24,7 @@ public class LineConsumptionLog
     public string LineName { get; set; } = "";
     public DateTime PeriodStart { get; set; }
     public DateTime PeriodEnd { get; set; }
-    public decimal QuantityConsumed { get; set; }
+    public int QuantityConsumed { get; set; }
     public string Unit { get; set; } = "";  // e.g., ks, m
     public string? Source { get; set; }      // e.g., production system, manual entry
     public DateOnly RecordedAt { get; set; } // Calendar date selected by Skladnik (PostgreSQL date)

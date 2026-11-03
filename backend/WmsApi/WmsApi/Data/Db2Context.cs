@@ -17,8 +17,6 @@ public class Db2Context : DbContext
             .HasIndex(x => new { x.ProductCode, x.Timestamp });
 
         b.Entity<LineConsumptionLog>()
-            .Property(x => x.QuantityConsumed).HasPrecision(18, 3);
-        b.Entity<LineConsumptionLog>()
             .Property(x => x.RecordedAt).HasColumnType("date");
         b.Entity<LineConsumptionLog>()
             .HasIndex(x => new { x.ProductCode, x.LineName, x.PeriodEnd });
