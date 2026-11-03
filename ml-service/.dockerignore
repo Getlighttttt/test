@@ -6,3 +6,8 @@ venv/
 .env
 .pytest_cache/
 .git/
+models/
+tests/
+docs/
+integration/
+*.db

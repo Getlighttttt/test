@@ -42,7 +42,7 @@ services:
       - "8080:8080"
     environment:
       ASPNETCORE_URLS: "http://+:8080"
-      ML_SERVICE_URL: "http://ml-service:8000"  # Reserved for future ASP.NET integration. Not used yet.
+      ML_SERVICE_URL: "http://ml-service:8000"  # MlController (integration/csharp) calls the ML service here
       ConnectionStrings__Db1: "Host=db1;Port=5432;Database=wms_operational;Username=wms;Password=wms123"
       ConnectionStrings__Db2: "Host=db2;Port=5432;Database=wms_analytics;Username=wms;Password=wms123"
     depends_on:
@@ -56,15 +56,36 @@ services:
       context: ./ml-service
       dockerfile: Dockerfile
     container_name: wms-ml
+    environment:
+      # Внутри docker-сети: хост = имя сервиса, порт = внутренний 5432 (не 5434!)
+      DATABASE_URL: "postgresql+psycopg://wms:wms123@db2:5432/wms_analytics"
+      # C# + фронтенд — один контейнер "app" на порту 8080
+      MAIN_BACKEND_URL: "http://app:8080"
+      SERVICE_API_KEY: "dev-ml-key"
+      CRITICAL_THRESHOLD: "0.70"
+      HORIZON_MINUTES: "60"
+      MAIN_SCHEMA_WAIT_SEC: "120"     # ждём, пока C# создаст свои таблицы в DB2
+      SIMULATOR_ENABLED: "true"       # для защиты: линии L1/L2 «работают» сами
+      SIMULATOR_INTERVAL_SEC: "30"
+      SIMULATOR_AUTO_REFILL: "false"  # подвоз только через реальный TO_LINE от складника
+      CORS_ORIGINS: "http://localhost:8080,http://localhost:5173"
+    depends_on:
+      db2:
+        condition: service_healthy
+      app:
+        condition: service_started    # C# создаёт таблицы DB2 первым
     ports:
-      - "127.0.0.1:8001:8000"  # Local testing only; internal container port is 8000.
+      - "127.0.0.1:8001:8000"         # с компьютера: http://localhost:8001; внутри сети: ml-service:8000
+    volumes:
+      - mlmodels:/app/models
     healthcheck:
       test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/health', timeout=3)"]
       interval: 10s
       timeout: 5s
       retries: 5
-      start_period: 10s
+      start_period: 150s              # первый запуск: ожидание C# + обучение модели
 
 volumes:
   db1data:
   db2data:
+  mlmodels:
