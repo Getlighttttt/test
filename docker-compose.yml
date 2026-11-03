@@ -61,7 +61,7 @@ services:
       DATABASE_URL: "postgresql+psycopg://wms:wms123@db2:5432/wms_analytics"
       # C# + фронтенд — один контейнер "app" на порту 8080
       MAIN_BACKEND_URL: "http://app:8080"
-      SERVICE_API_KEY: "dev-ml-key"
+      SERVICE_API_KEY: "${SERVICE_API_KEY:-dev-ml-key}"
       CRITICAL_THRESHOLD: "0.70"
       HORIZON_MINUTES: "60"
       MAIN_SCHEMA_WAIT_SEC: "120"     # ждём, пока C# создаст свои таблицы в DB2

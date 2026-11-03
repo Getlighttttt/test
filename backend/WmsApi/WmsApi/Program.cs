@@ -10,6 +10,21 @@ builder.Services.AddDbContext<Db2Context>(o =>
     o.UseNpgsql(builder.Configuration.GetConnectionString("Db2")));
 builder.Services.AddScoped<MovementLogger>();
 
+// C# -> Python ML service. Uses the Docker service name inside Compose.
+builder.Services.AddHttpClient("ml", client =>
+{
+    client.BaseAddress = new Uri(
+        builder.Configuration["ML_SERVICE_URL"]
+        ?? builder.Configuration["Ml:BaseUrl"]
+        ?? "http://localhost:8000");
+
+    client.DefaultRequestHeaders.Add(
+        "X-API-Key",
+        builder.Configuration["Ml:ApiKey"] ?? "dev-ml-key");
+
+    client.Timeout = TimeSpan.FromSeconds(10);
+});
+
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();

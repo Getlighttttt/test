@@ -1,0 +1,4 @@
+/* Only the new ML prediction rows use these colors. */
+.ml-risk-high { background: rgba(220, 53, 69, 0.14); }
+.ml-risk-medium { background: rgba(255, 153, 0, 0.15); }
+.ml-risk-low { background: rgba(40, 167, 69, 0.12); }
