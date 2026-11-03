@@ -50,6 +50,7 @@ services:
     environment:
       ASPNETCORE_URLS: "http://+:8080"
       ML_SERVICE_URL: "http://ml-service:8000"  # MlController (integration/csharp) calls the ML service here
+      Ml__ApiKey: "${SERVICE_API_KEY:-dev-ml-key}"
       ConnectionStrings__Db1: "Host=db1;Port=5432;Database=wms_operational;Username=wms;Password=wms123"
       ConnectionStrings__Db2: "Host=db2;Port=5432;Database=wms_analytics;Username=wms;Password=wms123"
     depends_on:
