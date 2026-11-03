@@ -1,16 +1,40 @@
-# React + Vite
+# WMS Frontend (React / Vite)
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Web interface for the In-Plant WMS, built with **React 19** and **Vite**. It provides separate views for **Skladník** (warehouse operator) and **Dispečer** (dispatcher), including warehouse operations and ML shortage-risk monitoring.
 
-Currently, two official plugins are available:
+## Run locally
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+Requires Node.js and npm. Start the ASP.NET backend at `http://localhost:5134` first, then run from `frontend/`:
 
-## React Compiler
+```bash
+npm ci
+npm run dev
+```
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+Open **http://localhost:5173**. Vite proxies `/api` requests to `http://localhost:5134` (see `vite.config.js`). Other commands:
 
-## Expanding the ESLint configuration
+```bash
+npm run build   # production files in dist/
+npm run lint    # ESLint checks
+```
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+## Run with Docker
+
+From the **repository root**:
+
+```bash
+docker compose up -d --build
+```
+
+Open **http://localhost:8080**. The production React build is served by ASP.NET in the existing **`app` container**.
+
+## Features and integration
+
+- **Skladník (TSD):** receiving, storage transfers, sending pallets to L1/L2, consumption logging, and quarantine.
+- **Dispečer:** stock dashboard, deviations, replenishment requests, quarantine cases, and line inventory.
+- **ML on the dashboard:** predictions from `GET /api/ml/risk`, active alerts from `GET /api/ml/alerts`, and acknowledgment via `POST /api/ml/alerts/{id}/ack`. Prediction and alert data refresh every **15 seconds**.
+- **Authentication:** protected routes based on the ASP.NET cookie session; API requests use relative `/api/...` URLs.
+
+Important files: `src/App.jsx` (routes), `src/components/` (layout and protection), `src/pages/` (screens), `src/api.js` (API requests), `vite.config.js` (development proxy).
+
+The frontend does not access PostgreSQL directly and does not store the ML service API key. Backend endpoints handle data access and protected ML actions.

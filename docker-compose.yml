@@ -32,11 +32,18 @@ services:
       interval: 5s
       timeout: 5s
       retries: 10
+  frontend-build:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    scale: 0
 
   app:
     build:
-      context: .
+      context: ./backend
       dockerfile: Dockerfile
+      additional_contexts:
+        frontend_assets: service:frontend-build
     container_name: wms-app
     ports:
       - "8080:8080"
