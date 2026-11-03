@@ -12,6 +12,7 @@ import Deviations from './pages/Deviations.jsx';
 import QuarantineCases from './pages/QuarantineCases.jsx';
 import Requests from './pages/Requests.jsx';
 import LineInventory from './pages/LineInventory.jsx';
+import Consumption from './pages/Consumption.jsx';
 
 function App() {
   const [count, setCount] = useState(0)
@@ -35,6 +36,12 @@ function App() {
       <Route path="/tsd/line" element={
         <ProtectedRoute role="Skladnik">
         <Layout><Line /></Layout>
+        </ProtectedRoute>
+      } />
+
+      <Route path="/tsd/consumption" element={
+        <ProtectedRoute role="Skladnik">
+          <Layout><Consumption /></Layout>
         </ProtectedRoute>
       } />
 

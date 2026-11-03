@@ -110,7 +110,8 @@ namespace WmsApi.Controllers
             await _db.SaveChangesAsync();
             await _logger.LogAsync("TO_LINE", pallet.Code, pallet.Product!.Code, pallet.Quantity,
                 Zone.Storage, Zone.LineBuffer, User.Identity?.Name,
-                $"Line {lineName}; replenishment request {replenishment.Id}");
+                $"Line {lineName}; replenishment request {replenishment.Id}",
+                lineName: pallet.LineName);
             return Ok(new { message = $"The pallet was sent to {lineName}" });
         }
     }

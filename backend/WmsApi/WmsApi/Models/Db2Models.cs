@@ -1,4 +1,4 @@
-﻿namespace WmsApi.Models;
+namespace WmsApi.Models;
 
 public class MovementLog
 {
@@ -10,6 +10,7 @@ public class MovementLog
     public int Quantity { get; set; }
     public string? FromZone { get; set; }
     public string? ToZone { get; set; }
+    public string? LineName { get; set; }  // NULL, L1, or L2
     public string? UserName { get; set; }
     public string? Details { get; set; }
 }
@@ -18,6 +19,7 @@ public class MovementLog
 public class LineConsumptionLog
 {
     public long Id { get; set; }
+    public string? PalletCode { get; set; }
     public string ProductCode { get; set; } = "";
     public string LineName { get; set; } = "";
     public DateTime PeriodStart { get; set; }

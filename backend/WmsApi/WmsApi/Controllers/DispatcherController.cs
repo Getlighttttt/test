@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Threading.Channels;
@@ -58,7 +58,7 @@ namespace WmsApi.Controllers
         {
             var pallets = await _db.Pallets
                 .Include(p => p.Product)
-                .Where(p => p.Status != PalletStatus.WrittenOff)
+                .Where(p => p.Status != PalletStatus.WrittenOff && p.Status != PalletStatus.Consumed)
                 .ToListAsync();
 
             var stock = pallets

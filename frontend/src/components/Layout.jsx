@@ -26,6 +26,7 @@ function Layout({ children }) {
         { to: '/tsd', label: 'Income / Transfer' },
         { to: '/tsd/receiving', label: 'Receiving Area' },
         { to: '/tsd/line', label: 'Send to Line' },
+        { to: '/tsd/consumption', label: 'Consumption' },
         { to: '/tsd/quarantine', label: 'Quarantine / Reject' },
     ];
 

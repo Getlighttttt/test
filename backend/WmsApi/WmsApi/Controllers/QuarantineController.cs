@@ -31,7 +31,7 @@ namespace WmsApi.Controllers
                 return NotFound(new { message = "An unknown palette" });
             }
 
-            if (pallet.Status == PalletStatus.Quarantine || pallet.Status == PalletStatus.WrittenOff
+            if (pallet.Status == PalletStatus.Quarantine || pallet.Status == PalletStatus.WrittenOff || pallet.Status == PalletStatus.Consumed
                 || pallet.Status == PalletStatus.Rework || pallet.Status == PalletStatus.Claim)
             {
                 return BadRequest(new { message = "The pallet is already blocked or has been written off" });

@@ -4,7 +4,8 @@ public static class PalletStatus
 {
     public const string Received = "RECEIVED";      
     public const string Stored = "STORED";         
-    public const string OnLine = "ON_LINE";        
+    public const string OnLine = "ON_LINE";
+    public const string Consumed = "CONSUMED";        
     public const string Quarantine = "QUARANTINE";  
     public const string WrittenOff = "WRITTEN_OFF";
     public const string Rework = "REWORK";
