@@ -32,10 +32,12 @@ function Layout({ children }) {
 
     const dispecerMenu = [
         { to: '/dashboard', label: 'Dashboard' },
+        { to: '/dashboard/analytics', label: 'Analytics' },
         { to: '/dashboard/deviations', label: 'Deviations' },
         { to: '/dashboard/quarantine', label: 'Quarantine' },
         { to: '/dashboard/requests', label: 'Requests' },
         { to: '/dashboard/lines', label: 'Production Lines' },
+        { to: '/dashboard/master-data', label: 'Master Data' },
     ];
 
     let menu = [];

@@ -1,14 +1,8 @@
 namespace WmsApi.Models;
 
-// Valid production lines for replenishment and dispatcher inventory views.
-// Kept in one place so the backend endpoints cannot disagree.
+// L1 and L2 are the initial demonstration lines seeded at startup.
+// Active-line validation and lookup are database-driven via Db1Context.ProductionLines.
 public static class ProductionLines
 {
-    public static readonly string[] Codes = { "L1", "L2" };
-
-    public static string? Normalize(string? lineName)
-    {
-        var code = lineName?.Trim().ToUpperInvariant();
-        return code is "L1" or "L2" ? code : null;
-    }
+    public static readonly string[] DefaultCodes = { "L1", "L2" };
 }

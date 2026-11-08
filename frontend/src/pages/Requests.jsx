@@ -3,15 +3,14 @@ import { api } from '../api';
 import './Tsd.css';
 import './Dashboard.css';
 
-const LINES = ['L1', 'L2'];
-
 function Requests() {
     const [products, setProducts] = useState([]);
+    const [lines, setLines] = useState([]);
     const [requests, setRequests] = useState([]);
     const [loading, setLoading] = useState(true);
 
     const [productCode, setProductCode] = useState('');
-    const [lineName, setLineName] = useState('L1');
+    const [lineName, setLineName] = useState('');
     const [quantity, setQuantity] = useState('');
     const [priority, setPriority] = useState(3);
 
@@ -25,10 +24,18 @@ function Requests() {
 
     useEffect(() => {
         async function load() {
-            const prodRes = await api('/api/dispecer/products');
+            const [prodRes, lineRes] = await Promise.all([
+                api('/api/dispecer/products'),
+                api('/api/master-data/lines'),
+            ]);
             if (prodRes.ok) {
                 setProducts(prodRes.data);
                 setProductCode(prodRes.data[0]?.code ?? '');
+            }
+            if (lineRes.ok) {
+                const activeLines = lineRes.data.filter(line => line.isActive);
+                setLines(activeLines);
+                setLineName(activeLines[0]?.code ?? '');
             }
             await loadRequests();
             setLoading(false);
@@ -45,8 +52,8 @@ function Requests() {
             setFormError('Select a material');
             return;
         }
-        if (!LINES.includes(lineName)) {
-            setFormError('Select L1 or L2');
+        if (!lines.some(line => line.code === lineName)) {
+            setFormError('Select an active production line');
             return;
         }
         if (!/^\d+$/.test(quantity) || !Number.isSafeInteger(qty) || qty <= 0) {
@@ -99,8 +106,8 @@ function Requests() {
                         ))}
                     </select>
                     <select aria-label="Production line" value={lineName} onChange={(e) => setLineName(e.target.value)}>
-                        {LINES.map((line) => (
-                            <option key={line} value={line}>{line}</option>
+                        {lines.map((line) => (
+                            <option key={line.id} value={line.code}>{line.code} - {line.name}</option>
                         ))}
                     </select>
                     <input
@@ -120,7 +127,7 @@ function Requests() {
                             <option key={n} value={n}>Priority {n}</option>
                         ))}
                     </select>
-                    <button className="primary" onClick={handleCreate}>Create</button>
+                    <button className="primary" onClick={handleCreate} disabled={!products.length || !lines.length}>Create</button>
                 </div>
                 {formError && <p className="error">{formError}</p>}
             </section>

@@ -13,6 +13,8 @@ import QuarantineCases from './pages/QuarantineCases.jsx';
 import Requests from './pages/Requests.jsx';
 import LineInventory from './pages/LineInventory.jsx';
 import Consumption from './pages/Consumption.jsx';
+import Analytics from './pages/Analytics.jsx';
+import MasterData from './pages/MasterData.jsx';
 
 function App() {
   const [count, setCount] = useState(0)
@@ -57,6 +59,12 @@ function App() {
         </ProtectedRoute>
       } />
 
+      <Route path="/dashboard/analytics" element={
+        <ProtectedRoute role="Dispecer">
+          <Layout><Analytics /></Layout>
+        </ProtectedRoute>
+      } />
+
       <Route path="/dashboard/deviations" element={
         <ProtectedRoute role="Dispecer">
           <Layout><Deviations /></Layout>
@@ -72,6 +80,12 @@ function App() {
       <Route path="/dashboard/lines" element={
         <ProtectedRoute role="Dispecer">
           <Layout><LineInventory /></Layout>
+        </ProtectedRoute>
+      } />
+
+      <Route path="/dashboard/master-data" element={
+        <ProtectedRoute role="Dispecer">
+          <Layout><MasterData /></Layout>
         </ProtectedRoute>
       } />
 

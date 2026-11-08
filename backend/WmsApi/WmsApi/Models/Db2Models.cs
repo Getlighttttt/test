@@ -1,4 +1,4 @@
-namespace WmsApi.Models;
+﻿namespace WmsApi.Models;
 
 public class MovementLog
 {
@@ -10,7 +10,7 @@ public class MovementLog
     public int Quantity { get; set; }
     public string? FromZone { get; set; }
     public string? ToZone { get; set; }
-    public string? LineName { get; set; }  // NULL, L1, or L2
+    public string? LineName { get; set; }  // NULL or a configured production-line code
     public string? UserName { get; set; }
     public string? Details { get; set; }
 }

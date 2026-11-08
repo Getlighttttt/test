@@ -1,4 +1,4 @@
-using Microsoft.AspNetCore.Authorization;
+﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Threading.Channels;
@@ -112,7 +112,7 @@ namespace WmsApi.Controllers
         [HttpGet("products")]
         public async Task<IActionResult> GetProducts()
         {
-            var products = await _db.Products.OrderBy(p => p.Code).ToListAsync();
+            var products = await _db.Products.Where(p => p.IsActive).OrderBy(p => p.Code).ToListAsync();
             return Ok(products.Select(p => new { code = p.Code, name = p.Name, unit = p.Unit }));
         }
 

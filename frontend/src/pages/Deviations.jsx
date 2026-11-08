@@ -1,20 +1,27 @@
+
 import { useState, useEffect } from 'react';
 import { api } from '../api';
 import './Tsd.css';
 import './Dashboard.css';
+import './Deviations.css';
 
 function Deviations() {
     const [items, setItems] = useState([]);
     const [loading, setLoading] = useState(true);
     const [message, setMessage] = useState({ ok: true, text: '' });
+    const [showRejectModal, setShowRejectModal] = useState(false);
+    const [selectedDeviation, setSelectedDeviation] = useState(null);
+    const [submitting, setSubmitting] = useState(false);
 
     async function loadDeviations() {
         const res = await api('/api/dispecer/deviations');
+
         if (res.ok) {
             setItems(res.data);
         } else {
             setMessage({ ok: false, text: 'Failed to load deviations' });
         }
+
         setLoading(false);
     }
 
@@ -23,24 +30,49 @@ function Deviations() {
     }, []);
 
     async function handleDecision(id, approve) {
-        if (!approve && !window.confirm('Do you really want to reject this payment?')) {
+        if (!approve) {
+            setSelectedDeviation(id);
+            setShowRejectModal(true);
             return;
         }
 
-        const res = await api('/api/dispecer/deviations/' + id + '/decision', 'POST', {
-            approve: approve,
-        });
+        await submitDecision(id, true);
+    }
+
+    async function submitDecision(id, approve) {
+        setSubmitting(true);
+
+        const res = await api(
+            '/api/dispecer/deviations/' + id + '/decision',
+            'POST',
+            { approve }
+        );
+
+        setSubmitting(false);
 
         if (!res.ok) {
-            setMessage({ ok: false, text: res.data?.message ?? 'Error' });
+            setMessage({
+                ok: false,
+                text: res.data?.message ?? 'Error',
+            });
             return;
         }
 
         setMessage({
             ok: true,
-            text: approve ? 'Payment approved' : 'Payment rejected',
+            text: approve ? 'Deviation approved' : 'Deviation rejected',
         });
-        await loadDeviations();  
+
+        setShowRejectModal(false);
+        setSelectedDeviation(null);
+
+        await loadDeviations();
+    }
+
+    function confirmReject() {
+        if (selectedDeviation !== null) {
+            submitDecision(selectedDeviation, false);
+        }
     }
 
     if (loading) {
@@ -52,7 +84,9 @@ function Deviations() {
             <h1>Deviations</h1>
 
             {message.text && (
-                <p className={message.ok ? 'ok' : 'error'}>{message.text}</p>
+                <p className={message.ok ? 'ok' : 'error'}>
+                    {message.text}
+                </p>
             )}
 
             {items.length === 0 ? (
@@ -67,7 +101,10 @@ function Deviations() {
                                 Order {d.orderNumber}{' '}
                                 <small>(receipt #{d.id})</small>
                             </h3>
-                            <span>{new Date(d.createdAt).toLocaleString('sk-SK')}</span>
+
+                            <span>
+                                {new Date(d.createdAt).toLocaleString('sk-SK')}
+                            </span>
                         </div>
 
                         <div className="warn">
@@ -76,15 +113,69 @@ function Deviations() {
                         </div>
 
                         <div className="row" style={{ marginTop: 12 }}>
-                            <button className="success" onClick={() => handleDecision(d.id, true)}>
+                            <button
+                                className="success"
+                                onClick={() => handleDecision(d.id, true)}
+                            >
                                 Approve
                             </button>
-                            <button className="danger" onClick={() => handleDecision(d.id, false)}>
+
+                            <button
+                                className="danger"
+                                onClick={() => handleDecision(d.id, false)}
+                            >
                                 Reject
                             </button>
                         </div>
                     </section>
                 ))
+            )}
+
+            {showRejectModal && (
+                <div
+                    className="deviation-modal-overlay"
+                    onClick={() => {
+                        if (!submitting) {
+                            setShowRejectModal(false);
+                            setSelectedDeviation(null);
+                        }
+                    }}
+                >
+                    <div
+                        className="deviation-modal"
+                        onClick={(e) => e.stopPropagation()}
+                    >
+                        <div className="deviation-modal-icon">!</div>
+
+                        <h2>Reject deviation?</h2>
+
+                        <p>
+                            Are you sure you want to reject this deviation?
+                            This action cannot be undone.
+                        </p>
+
+                        <div className="deviation-modal-actions">
+                            <button
+                                className="deviation-cancel"
+                                disabled={submitting}
+                                onClick={() => {
+                                    setShowRejectModal(false);
+                                    setSelectedDeviation(null);
+                                }}
+                            >
+                                Cancel
+                            </button>
+
+                            <button
+                                className="danger"
+                                disabled={submitting}
+                                onClick={confirmReject}
+                            >
+                                {submitting ? 'Rejecting...' : 'Yes, reject'}
+                            </button>
+                        </div>
+                    </div>
+                </div>
             )}
         </div>
     );

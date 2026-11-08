@@ -22,9 +22,11 @@ public class ConsumptionController : ControllerBase
     [HttpGet("pallets")]
     public async Task<IActionResult> GetPallets()
     {
+        var activeLineCodes = await _db1.ProductionLines.AsNoTracking()
+            .Where(line => line.IsActive).Select(line => line.Code).ToListAsync();
+
         var pallets = await _db1.Pallets.AsNoTracking()
-            .Where(p => p.Status == PalletStatus.OnLine &&
-                       (p.LineName == "L1" || p.LineName == "L2"))
+            .Where(p => p.Status == PalletStatus.OnLine && activeLineCodes.Contains(p.LineName!))
             .OrderBy(p => p.LineName)
             .ThenBy(p => p.Code)
             .Select(p => new
@@ -76,8 +78,9 @@ public class ConsumptionController : ControllerBase
             return NotFound(new { message = "Unknown pallet." });
 
         if (pallet.Status != PalletStatus.OnLine ||
-            (pallet.LineName != "L1" && pallet.LineName != "L2"))
-            return Conflict(new { message = "The pallet is not currently on L1 or L2." });
+            string.IsNullOrWhiteSpace(pallet.LineName) ||
+            !await _db1.ProductionLines.AnyAsync(line => line.Code == pallet.LineName && line.IsActive))
+            return Conflict(new { message = "The pallet is not assigned to an active production line." });
 
         // The pallet must be switched only once, even if the request is submitted twice.
         await using var db1Transaction = await _db1.Database.BeginTransactionAsync();

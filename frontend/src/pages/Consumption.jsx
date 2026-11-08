@@ -101,7 +101,7 @@ function Consumption() {
     return (
         <div className="tsd dash">
             <h1>Production Consumption</h1>
-            <p>Confirm consumption of a complete pallet on production line L1 or L2.</p>
+            <p>Confirm consumption of a complete pallet assigned to a production line.</p>
 
             <section className="card">
                 <form onSubmit={handleSubmit}>
@@ -153,7 +153,7 @@ function Consumption() {
                     </button>
                 </form>
                 {loading && <p>Loading pallets...</p>}
-                {!loading && pallets.length === 0 && <p>No pallets currently on L1 or L2.</p>}
+                {!loading && pallets.length === 0 && <p>No pallets currently assigned to active production lines.</p>}
                 {error && <p className="error" role="alert">{error}</p>}
                 {message && <p role="status">{message}</p>}
                 <p><small>Confirmation removes the pallet from active inventory and records its consumption history.</small></p>

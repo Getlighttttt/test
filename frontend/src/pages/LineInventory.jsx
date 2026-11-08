@@ -31,7 +31,7 @@ function LineInventory() {
                 <h1>Production Line Inventory</h1>
                 <button onClick={loadLines} disabled={loading}>Refresh</button>
             </div>
-            <p>Materials and pallets currently assigned to L1 and L2.</p>
+            <p>Materials and pallets currently assigned to active production lines.</p>
             <small>Quantities are grouped by material and unit. Pending requests are not included.</small>
             {error && <p className="error">{error}</p>}
             {loading && <p>Loading...</p>}
@@ -39,8 +39,8 @@ function LineInventory() {
             {!loading && lines.map((line) => (
                 <section className="card" key={line.lineName}>
                     <div className="row-between">
-                        <h3>{line.lineName}</h3>
-                        <small>{line.palletCount} assigned pallet{line.palletCount === 1 ? '' : 's'}</small>
+                        <h3>{line.lineName} — {line.lineTitle}</h3>
+                        <small>{line.location ? `${line.location} · ` : ''}{line.palletCount} assigned pallet{line.palletCount === 1 ? '' : 's'}</small>
                     </div>
 
                     <h3>Material quantities</h3>

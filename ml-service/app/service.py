@@ -150,8 +150,8 @@ def alert_payload(p: Prediction) -> dict:
         "minutesToStockout": p.minutes_to_stockout,
         "recommendedQty": int(p.recommended_qty),
         "priority": priority_for(p.risk),
-        "message": f"Riziko výpadku {p.product_code} na {p.line_name}: {p.risk * 100:.0f} % "
-                   f"(hranica {p.threshold * 100:.0f} %). Doplniť {p.recommended_qty:.0f} ks.",
+        "message": f"Risk of failure {p.product_code} on {p.line_name}: {p.risk * 100:.0f} % "
+                   f"(threshold {p.threshold * 100:.0f} %). Replenish {p.recommended_qty:.0f} units.",
         "modelVersion": p.model_version,
         "createdAt": (p.ts or utcnow()).isoformat(),
     }

@@ -39,9 +39,9 @@ function CaseCard({ item, onDone }) {
             </div>
 
             <p>
-                Množstvo: <b>{item.quantity}</b>
+                Quantity: <b>{item.quantity}</b>
                 <br />
-                Dôvod: <b>{item.reason}</b>
+                Reason: <b>{item.reason}</b>
             </p>
 
             <p>
@@ -79,7 +79,7 @@ function CaseCard({ item, onDone }) {
 
             <div style={{ marginTop: 12 }}>
                 <button className="primary" onClick={handleSave}>
-                    Uložiť rozhodnutie
+                    Save the decision
                 </button>
             </div>
             {error && <p className="error">{error}</p>}

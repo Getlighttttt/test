@@ -22,11 +22,12 @@ namespace WmsApi.Controllers
         public async Task<IActionResult> Create(CreateReplenishmentRequest req)
         {
             // Validate on the server as well as in the dispatcher dropdown.
-            var lineName = ProductionLines.Normalize(req.LineName);
-            if (lineName == null)
-                return BadRequest(new { message = "Production line must be L1 or L2." });
+            var lineName = req.LineName?.Trim().ToUpperInvariant();
+            if (string.IsNullOrWhiteSpace(lineName) ||
+                !await _db.ProductionLines.AnyAsync(l => l.Code == lineName && l.IsActive))
+                return BadRequest(new { message = "Select an active production line." });
 
-            var product = await _db.Products.FirstOrDefaultAsync(p => p.Code == req.ProductCode);
+            var product = await _db.Products.FirstOrDefaultAsync(p => p.Code == req.ProductCode && p.IsActive);
             if (product == null)
                 return NotFound(new { message = "Unknown product" });
             if (req.Quantity <= 0)
@@ -83,9 +84,10 @@ namespace WmsApi.Controllers
                 return BadRequest(new { message = "This request has already been completed" });
 
             // Old requests may have been created before line validation existed.
-            var lineName = ProductionLines.Normalize(replenishment.LineName);
-            if (lineName == null)
-                return BadRequest(new { message = "The request targets an invalid production line. Only L1 and L2 are allowed." });
+            var lineName = replenishment.LineName?.Trim().ToUpperInvariant();
+            if (string.IsNullOrWhiteSpace(lineName) ||
+                !await _db.ProductionLines.AnyAsync(l => l.Code == lineName && l.IsActive))
+                return BadRequest(new { message = "The request targets an inactive or unknown production line." });
 
             var pallet = await _db.Pallets
                 .Include(p => p.Product)

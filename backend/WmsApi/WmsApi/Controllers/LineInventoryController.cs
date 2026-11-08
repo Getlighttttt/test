@@ -18,21 +18,26 @@ public class LineInventoryController : ControllerBase
     [HttpGet]
     public async Task<IActionResult> GetLines()
     {
-        // Only pallets actually assigned to a production line are counted.
+        var activeLines = await _db.ProductionLines.AsNoTracking()
+            .Where(line => line.IsActive).OrderBy(line => line.Code).ToListAsync();
+
+        // Only pallets actually assigned to a known production line are counted.
         // A pending replenishment request is not stock on the line.
+        var lineCodes = activeLines.Select(line => line.Code).ToList();
         var pallets = await _db.Pallets.AsNoTracking()
             .Include(p => p.Product)
-            .Where(p => p.Status == PalletStatus.OnLine &&
-                        (p.LineName == "L1" || p.LineName == "L2"))
+            .Where(p => p.Status == PalletStatus.OnLine && lineCodes.Contains(p.LineName!))
             .ToListAsync();
 
-        // Both lines appear even when they currently have no pallets.
-        var lines = ProductionLines.Codes.Select(lineName =>
+        // Active lines appear even when they currently have no pallets.
+        var lines = activeLines.Select(line =>
         {
-            var assigned = pallets.Where(p => p.LineName == lineName).ToList();
+            var assigned = pallets.Where(p => p.LineName == line.Code).ToList();
             return new
             {
-                lineName,
+                lineName = line.Code,
+                lineTitle = line.Name,
+                location = line.Location,
                 palletCount = assigned.Count,
                 materials = assigned
                     .GroupBy(p => p.ProductId)

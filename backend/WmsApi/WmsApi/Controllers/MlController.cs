@@ -28,11 +28,12 @@ namespace WmsApi.Controllers
             if (apiKey != (_config["Ml:ApiKey"] ?? "dev-ml-key"))
                 return Unauthorized(new { message = "Invalid API key" });
 
-            var lineName = ProductionLines.Normalize(dto.LineName);
-            if (lineName == null)
-                return BadRequest(new { message = "Production line must be L1 or L2" });
+            var lineName = dto.LineName?.Trim().ToUpperInvariant();
+            if (string.IsNullOrWhiteSpace(lineName) ||
+                !await _db.ProductionLines.AnyAsync(l => l.Code == lineName && l.IsActive))
+                return BadRequest(new { message = "Production line is inactive or unknown." });
 
-            var product = await _db.Products.FirstOrDefaultAsync(p => p.Code == dto.ProductCode);
+            var product = await _db.Products.FirstOrDefaultAsync(p => p.Code == dto.ProductCode && p.IsActive);
             if (product == null)
                 return NotFound(new { message = "Unknown product" });
 

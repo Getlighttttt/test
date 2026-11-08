@@ -52,6 +52,7 @@ using (var scope = app.Services.CreateScope())
     db2.Database.EnsureCreated();
 
     DbSeeder.Seed(db1);
+    await MasterDataBootstrapper.EnsureAsync(db1);
     LocationBootstrapper.EnsureLocations(db1);
     OrderBootstrapper.Seed(db1);
 

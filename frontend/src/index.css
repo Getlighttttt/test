@@ -73,7 +73,11 @@ button.warning { background: var(--orange); color: white; }
 .btn-link:hover { background: var(--blue-dark); }
 
 /* ---------- сторінки й картки ---------- */
-.tsd { max-width: 1100px; }
+.tsd {
+    width: 100%;
+    max-width: none;
+    min-width: 0;
+}
 
 .card {
     background: white;

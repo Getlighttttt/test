@@ -10,6 +10,7 @@ public class Db1Context : DbContext
     public DbSet<Role> Roles => Set<Role>();
     public DbSet<User> Users => Set<User>();
     public DbSet<Product> Products => Set<Product>();
+    public DbSet<ProductionLine> ProductionLines => Set<ProductionLine>();
     public DbSet<Location> Locations => Set<Location>();
     public DbSet<Order> Orders => Set<Order>();
     public DbSet<OrderItem> OrderItems => Set<OrderItem>();
@@ -24,6 +25,7 @@ public class Db1Context : DbContext
     {
         b.Entity<User>().HasIndex(x => x.Username).IsUnique();
         b.Entity<Product>().HasIndex(x => x.Code).IsUnique();
+        b.Entity<ProductionLine>().HasIndex(x => x.Code).IsUnique();
         b.Entity<Location>().HasIndex(x => x.Code).IsUnique();
         b.Entity<Pallet>().HasIndex(x => x.Code).IsUnique();
         b.Entity<Order>().HasIndex(x => x.OrderNumber).IsUnique();

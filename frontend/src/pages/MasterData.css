@@ -1,0 +1,80 @@
+.master-heading { margin-bottom: 18px; }
+.master-heading p { margin: -12px 0 0; color: var(--muted); }
+.master-tabs {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    padding: 6px;
+    margin-bottom: 18px;
+    background: #e8eef6;
+    border-radius: 10px;
+}
+.master-tabs button {
+    background: transparent;
+    color: var(--muted);
+    flex: 1 1 160px;
+}
+.master-tabs button.active {
+    background: white;
+    color: var(--navy);
+    box-shadow: 0 1px 4px rgba(15, 23, 42, .12);
+}
+.master-message { margin: 10px 0 16px; }
+.master-form-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+    gap: 14px;
+    margin-bottom: 14px;
+}
+.master-form-grid label,
+.master-item-builder label {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    color: var(--muted);
+    font-size: 13px;
+    font-weight: 600;
+}
+.master-form-grid input,
+.master-item-builder input,
+.master-item-builder select { width: 100%; }
+.master-item-builder {
+    display: grid;
+    grid-template-columns: minmax(180px, 1fr) minmax(150px, .6fr) auto;
+    gap: 12px;
+    align-items: end;
+    margin: 12px 0 16px;
+}
+.master-order-items {
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 12px;
+    margin: 12px 0 16px;
+}
+.master-order-items > b { display: block; margin-bottom: 8px; }
+.master-order-items .row-between {
+    padding: 7px 0;
+    border-top: 1px solid var(--border);
+}
+.master-remove {
+    background: transparent;
+    color: var(--red);
+    padding: 4px 8px;
+}
+.master-status {
+    display: inline-block;
+    padding: 4px 8px;
+    border-radius: 20px;
+    background: #e2e8f0;
+    color: #475569;
+    font-size: 11px;
+    font-weight: 700;
+}
+.master-status.active { background: #dcfce7; color: #166534; }
+.master-status.inactive { background: #fee2e2; color: #991b1b; }
+.master-actions { white-space: nowrap; }
+.master-actions button { margin: 2px 4px 2px 0; }
+@media (max-width: 700px) {
+    .master-item-builder { grid-template-columns: 1fr; }
+    .master-actions { white-space: normal; }
+}
